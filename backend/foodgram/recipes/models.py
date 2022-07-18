@@ -24,7 +24,7 @@ class Tag(models.Model):
     """Creation a tag's object for finding. """
 
     name = models.CharField(
-        max_length=200, 
+        max_length=200,
         verbose_name='Название тега',
         db_index=True
     )
@@ -49,7 +49,7 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         related_name='recipe_author',
         verbose_name='Автор',
-        db_index=True        
+        db_index=True
     )
     name = models.CharField(
         max_length=200,
@@ -91,15 +91,14 @@ class Recipe(models.Model):
         verbose_name='Покупки',
         related_name='recipe_shoping_user',
         through='Shopping'
-    )	
+    )
 
     def __str__(self):
         return str(self.id)
 
 
-
 class Favorite(models.Model):
-    """Creation a favorite object,   
+    """Creation a favorite object,
     which is an inner bonded object to Recipe and User instances.
     """
 
@@ -128,9 +127,11 @@ class Favorite(models.Model):
     def __str__(self):
         return f'{self.user} {self.recipe}'
 
+
 class Subscribe(models.Model):
-    """Creation a subscribe object,   
-    which is an inner bonded object to User(subscriber) and User(author) instances.
+    """Creation a subscribe object,
+    which is an inner bonded object to User(subscriber)
+    and User(author) instances.
     """
 
     author = models.ForeignKey(
@@ -161,7 +162,7 @@ class Subscribe(models.Model):
 
 
 class Shopping(models.Model):
-    """Creation a subscribe object,   
+    """Creation a subscribe object,
     which is an inner bonded object to shopping User and Recipe instances.
     """
 
@@ -192,7 +193,7 @@ class Shopping(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    """Creation a recipe object,   
+    """Creation a recipe object,
     which is an inner bonded object to Recipe and Ingredient instances.
     """
 
@@ -228,7 +229,7 @@ class RecipeIngredient(models.Model):
 
 
 class RecipeTag(models.Model):
-    """Creation a recipe object,   
+    """Creation a recipe object,
     which is an inner bonded object to Recipe and Tag instances.
     """
 

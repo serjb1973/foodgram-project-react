@@ -1,21 +1,20 @@
 import csv
 import datetime
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action, api_view
-from rest_framework.response import Response
-
 from api.filters import RecipeFilterSet
 from api.pagination import ApiPagination
 from api.serializers import (FavoriteSerializerRead, IngredientSerializer,
                              RecipeSerializerRead, RecipeSerializerWrite,
                              ShoppingSerializerRead, SubscribeSerializerRead,
                              TagSerializer)
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             Shopping, Subscribe, Tag, User)
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action, api_view
+from rest_framework.response import Response
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -71,32 +70,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['delete'])
     def delete_recipe(self, request, pk=None):
-        if request.user.is_anonymous:
-            return Response(
-                {'detail': 'Пользователь не авторизован.'},
-                status=status.HTTP_401_UNAUTHORIZED)
         recipe = get_object_or_404(Recipe, id=pk)
         recipe.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, url_path='download_shopping_cart')
     def shopping_list_txt(self, request):
-        try:
-            user = User.objects.get(username=request.user)
-        except Exception:
-            return Response(
-                {'detail': 'Пользователь не авторизован.'},
-                status=status.HTTP_401_UNAUTHORIZED)
         # Create the HttpResponse object with the appropriate CSV header.
         response = HttpResponse(content_type='text/csv; charset=utf-8')
         response['Content-Disposition'] = 'attachment; filename="shopping.csv"'
         writer = csv.writer(response)
         writer.writerow([None, 'Список покупок', None, None])
         writer.writerow(
-            [None, f'{datetime.datetime.now():%Y-%m-%d}', user.username, None])
+            [
+                None,
+                f'{datetime.datetime.now():%Y-%m-%d}',
+                request.user.username, None])
         writer.writerow(['#', 'Наименование', 'Ед.Измерения', 'Количество'])
         queryset = RecipeIngredient.objects.filter(
-            recipe__shopping_recipe__user=user.id).extra(
+            recipe__shopping_recipe__user=request.user.id).extra(
                 select={
                     'sum_amount':
                     'select sum(amount) from recipes_RecipeIngredient as '
@@ -118,22 +110,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 @api_view(['POST', 'DELETE'])
 def subscribe_change(request, author_id):
-    try:
-        user = User.objects.get(username=request.user)
-    except Exception:
-        return Response(
-            {'detail': 'Пользователь не авторизован.'},
-            status=status.HTTP_401_UNAUTHORIZED)
     author = get_object_or_404(User, id=author_id)
     try:
         if request.method == 'POST':
-            Subscribe.objects.create(subscriber=user, author=author)
+            Subscribe.objects.create(subscriber=request.user, author=author)
     except Exception:
         return Response(
             {'detail': 'Ошибка подписки'},
             status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'DELETE':
-        subscribe = Subscribe.objects.filter(subscriber=user, author=author)
+        subscribe = Subscribe.objects.filter(
+            subscriber=request.user,
+            author=author)
         if subscribe:
             subscribe.delete()
         else:
@@ -165,9 +153,8 @@ def favorite_change(request, id):
             {'detail': 'Ошибка добавления в избранное'},
             status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'DELETE':
-        favorite = Favorite.objects.filter(recipe=recipe, user=user)
-        if favorite:
-            favorite.delete()
+        if Favorite.objects.filter(recipe=recipe, user=user).exists():
+            Favorite.objects.filter(recipe=recipe, user=user).delete()
         else:
             return Response(
                 {'detail': 'Ошибка удаления из избранного'},
@@ -182,24 +169,17 @@ def favorite_change(request, id):
 
 @api_view(['POST', 'DELETE'])
 def shopping_change(request, id):
-    try:
-        user = User.objects.get(username=request.user)
-    except Exception:
-        return Response(
-            {'detail': 'Пользователь не авторизован.'},
-            status=status.HTTP_401_UNAUTHORIZED)
     recipe = get_object_or_404(Recipe, id=id)
     try:
         if request.method == 'POST':
-            Shopping.objects.create(recipe=recipe, user=user)
+            Shopping.objects.create(recipe=recipe, user=request.user)
     except Exception:
         return Response(
             {'detail': 'Ошибка добавления в список покупок'},
             status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'DELETE':
-        shopping = Shopping.objects.filter(recipe=recipe, user=user)
-        if shopping:
-            shopping.delete()
+        if Shopping.objects.filter(recipe=recipe, user=request.user).exists():
+            Shopping.objects.filter(recipe=recipe, user=request.user).delete()
         else:
             return Response(
                 {'detail': 'Ошибка удаления из списка покупок'},

@@ -1,9 +1,9 @@
+from django.db import IntegrityError, transaction
 from django.db.models import Q
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers, status
-
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, Shopping, Subscribe, Tag, User)
+from rest_framework import serializers, status
 
 
 class RecipeSerializerReadSimple(serializers.ModelSerializer):
@@ -141,7 +141,7 @@ class FavoriteSerializerRead(serializers.ModelSerializer):
         model = Recipe
 
 
-class ShoppingSerializerRead(UserSerializerRead):
+class ShoppingSerializerRead(FavoriteSerializerRead):
     pass
 
 
@@ -210,35 +210,47 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(
-            **validated_data,
-            author=self.context['request'].user)
-        for tag in tags:
-            RecipeTag.objects.create(recipe=recipe, tag=tag)
-        for ingredient in ingredients:
-            RecipeIngredient.objects.create(
-                recipe=recipe,
-                ingredient=ingredient['id'],
-                amount=ingredient['amount'])
+        try:
+            with transaction.atomic():
+                recipe = Recipe.objects.create(
+                    **validated_data,
+                    author=self.context['request'].user)
+                for tag in tags:
+                    RecipeTag.objects.create(recipe=recipe, tag=tag)
+                for ingredient in ingredients:
+                    RecipeIngredient.objects.create(
+                        recipe=recipe,
+                        ingredient=ingredient['id'],
+                        amount=ingredient['amount'])
+        except IntegrityError:
+            raise serializers.ValidationError(
+                validated_data,
+                status.HTTP_400_BAD_REQUEST)
         return recipe
 
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.get(id=instance.id)
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        RecipeTag.objects.filter(recipe=recipe).delete()
-        for tag in tags:
-            RecipeTag.objects.create(recipe=recipe, tag=tag)
-        RecipeIngredient.objects.filter(recipe=recipe).delete()
-        for ingredient in ingredients:
-            RecipeIngredient.objects.create(
-                recipe=recipe,
-                ingredient=ingredient['id'],
-                amount=ingredient['amount'])
-        recipe_new = Recipe.objects.get(id=instance.id)
+        try:
+            with transaction.atomic():
+                recipe = Recipe.objects.get(id=instance.id)
+                for attr, value in validated_data.items():
+                    setattr(instance, attr, value)
+                instance.save()
+                RecipeTag.objects.filter(recipe=recipe).delete()
+                for tag in tags:
+                    RecipeTag.objects.create(recipe=recipe, tag=tag)
+                RecipeIngredient.objects.filter(recipe=recipe).delete()
+                for ingredient in ingredients:
+                    RecipeIngredient.objects.create(
+                        recipe=recipe,
+                        ingredient=ingredient['id'],
+                        amount=ingredient['amount'])
+                recipe_new = Recipe.objects.get(id=instance.id)
+        except IntegrityError:
+            raise serializers.ValidationError(
+                validated_data,
+                status.HTTP_400_BAD_REQUEST)
         return recipe_new
 
     def to_representation(self, value):
