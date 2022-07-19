@@ -77,16 +77,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False, url_path='download_shopping_cart')
     def shopping_list_txt(self, request):
         # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(content_type='text/plain; charset=utf-8')
-        response['Content-Disposition'] = 'attachment; filename="shopping.txt"'
+        response = HttpResponse(content_type='text/plan; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="shopping.csv"'
         writer = csv.writer(response)
-        writer.writerow([None, 'Список покупок', None, None])
+        writer.writerow(['Список покупок'])
         writer.writerow(
-            [
-                None,
-                f'{datetime.datetime.now():%Y-%m-%d}',
-                request.user.username, None])
-        writer.writerow(['#', 'Наименование', 'Ед.Измерения', 'Количество'])
+            [f'{datetime.datetime.now():%Y-%m-%d} {request.user.username}'])
+        writer.writerow(['# Наименование Ед.Измерения Количество'])
         queryset = RecipeIngredient.objects.filter(
             recipe__shopping_recipe__user=request.user.id).extra(
                 select={
@@ -104,7 +101,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             measurement_unit = rec['ingredient__measurement_unit']
             measurement_unit = f'({measurement_unit})'
             idx += 1
-            writer.writerow([idx, name, measurement_unit, rec['sum_amount']])
+            writer.writerow(
+                [f'{idx} * {name} {measurement_unit} - {rec["sum_amount"]}'])
         return response
 
 
