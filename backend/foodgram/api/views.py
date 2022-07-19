@@ -19,6 +19,7 @@ from rest_framework.response import Response
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     queryset = Tag.objects.all().order_by('slug')
     pagination_class = None
 
