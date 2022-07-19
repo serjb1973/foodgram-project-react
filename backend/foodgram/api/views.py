@@ -23,8 +23,9 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     pagination_class = None
 
     def get_queryset(self):
