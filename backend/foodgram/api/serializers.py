@@ -172,11 +172,20 @@ class RecipeSerializerRead(serializers.ModelSerializer):
         ordering = ['id']
 
     def get_is_favorited(self, obj):
-        return Favorite.objects.filter(recipe=obj).exists()
+        try:
+            return Favorite.objects.filter(
+                recipe=obj,
+                user=self.request.user).exists()
+        except Exception:
+            return False
 
     def get_is_in_shopping_cart(self, obj):
-        return Shopping.objects.filter(recipe=obj).exists()
-
+        try:
+            return Shopping.objects.filter(
+                recipe=obj,
+                user=self.request.user).exists()
+        except Exception:
+            return False
 
 class RecipeSerializerWrite(serializers.ModelSerializer):
     name = serializers.CharField(
