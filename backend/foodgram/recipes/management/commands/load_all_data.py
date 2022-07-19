@@ -21,7 +21,7 @@ class Command(BaseCommand):
             return
         # Show this before loading the data into the database
         print("Loading all data...")
-        data = open('../../data/ingredients.json', encoding='utf-8').read()
+        data = open('./data/ingredients.json', encoding='utf-8').read()
         json_data = json.loads(data)
         # Code to load the data into database
         for row in json_data:
