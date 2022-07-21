@@ -9,9 +9,7 @@ services:
       - ./.env
 
   api:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: serjb73/foodgram:latest
     volumes:
       - backend_static:/app/static/
       - media_value:/app/media/
