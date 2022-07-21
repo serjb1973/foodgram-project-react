@@ -11,3 +11,4 @@ class TagForm(ModelForm):
         widgets = {
             'color': TextInput(attrs={'type': 'color'}),
         }
+
