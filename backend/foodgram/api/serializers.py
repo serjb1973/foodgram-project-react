@@ -284,8 +284,7 @@ class SubscribeSerializerRead(serializers.ModelSerializer):
             'last_name',
             'is_subscribed',
             'recipes',
-            'recipes_count'
-            )
+            'recipes_count')
 
     def get_recipes(self, user):
         try:
@@ -305,5 +304,4 @@ class SubscribeSerializerRead(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         return Subscribe.objects.filter(
             author=obj,
-            subscriber=self.context['request'].user
-            ).exists()
+            subscriber=self.context['request'].user).exists()
