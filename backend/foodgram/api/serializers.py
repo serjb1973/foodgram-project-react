@@ -77,8 +77,7 @@ class UserSerializerRead(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         return Subscribe.objects.filter(
-            subscriber=obj
-            ).exists()
+            subscriber=obj).exists()
 
 
 class UserSerializer(serializers.ModelSerializer):
