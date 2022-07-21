@@ -31,14 +31,12 @@ class UserAdmin(DjangoUserAdmin):
                 "fields": (
                     ('username', 'email'),
                     ('first_name', 'last_name'), 'password')
-            }
-        ),
+            }),
         (
             "Application", {
                 "fields": ('is_active')
             }
-        ),
-        )
+        ),)
 
 
 @admin.register(Ingredient)

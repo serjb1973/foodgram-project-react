@@ -120,8 +120,7 @@ class UserSerializer(serializers.ModelSerializer):
             ).exists():
                 raise serializers.ValidationError(
                     'User and email is required to been unique',
-                    status.HTTP_400_BAD_REQUEST
-                )
+                    status.HTTP_400_BAD_REQUEST)
         return data
 
     def create(self, validated_data):
