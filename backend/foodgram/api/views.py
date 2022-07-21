@@ -79,7 +79,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False, url_path='download_shopping_cart')
     def shopping_list_txt(self, request):
         # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(content_type='text/plan; charset=utf-8')
+        response = HttpResponse(content_type='text/plan; charset=utf8')
         response['Content-Disposition'] = 'attachment; filename="shopping.txt"'
         writer = csv.writer(response)
         writer.writerow(['Список покупок'])
