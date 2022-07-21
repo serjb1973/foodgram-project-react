@@ -60,7 +60,7 @@ jobs:
         # Пуш образа в Docker Hub 
         uses: docker/build-push-action@v2 
         with:
-          context: ./foodgram
+          context: ./backend
           push: true
           tags: serjb73/foodgram:latest
   deploy:
