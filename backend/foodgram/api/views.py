@@ -1,20 +1,21 @@
 import csv
 import datetime
 
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import permissions, status, viewsets
+from rest_framework.decorators import action, api_view
+from rest_framework.response import Response
+
 from api.filters import RecipeFilterSet
 from api.pagination import ApiPagination
 from api.serializers import (FavoriteSerializerRead, IngredientSerializer,
                              RecipeSerializerRead, RecipeSerializerWrite,
                              ShoppingSerializerRead, SubscribeSerializerRead,
                              TagSerializer)
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             Shopping, Subscribe, Tag, User)
-from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action, api_view
-from rest_framework.response import Response
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -44,10 +45,9 @@ class SubscribeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SubscribeSerializerRead
 
     def get_queryset(self):
-        queryset = User.objects.filter(
+        return User.objects.filter(
             subscribe_author__subscriber_id=self.request.user.id).order_by(
                 'username')
-        return queryset
 
     def get_serializer_context(self):
         context = super(SubscribeViewSet, self).get_serializer_context()

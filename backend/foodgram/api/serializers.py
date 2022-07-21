@@ -1,9 +1,10 @@
 from django.db import IntegrityError, transaction
 from django.db.models import Q
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers, status
+
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             RecipeTag, Shopping, Subscribe, Tag, User)
-from rest_framework import serializers, status
 
 
 class RecipeSerializerReadSimple(serializers.ModelSerializer):
