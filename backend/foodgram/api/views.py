@@ -88,22 +88,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="shopping.txt"'
         report = []
         report.append('Список покупок')
-        report.append(
-            f'{datetime.datetime.now():%Y-%m-%d} {request.user.username}')
-        report.append('# Наименование Ед.Измерения Количество')
-        queryset = RecipeIngredient.objects.filter(
-            recipe__shopping_recipe__user=request.user.id).values(
-                 'ingredient__name',
-                 'ingredient__measurement_unit').annotate(
-                    amount_sum=Sum('amount')).order_by('ingredient__name')
-        idx = 0
-        for rec in queryset:
-            name = rec['ingredient__name'].capitalize()
-            measurement_unit = rec['ingredient__measurement_unit']
-            measurement_unit = f'({measurement_unit})'
-            idx += 1
+        if not self.context['request'].user.is_anonymous:
             report.append(
-                f'{idx} * {name} {measurement_unit} - {rec["amount_sum"]}')
+                f'{datetime.datetime.now():%Y-%m-%d} {request.user.username}')
+            report.append('# Наименование Ед.Измерения Количество')
+            queryset = RecipeIngredient.objects.filter(
+                recipe__shopping_recipe__user=request.user.id).values(
+                    'ingredient__name',
+                    'ingredient__measurement_unit').annotate(
+                        amount_sum=Sum('amount')).order_by('ingredient__name')
+            idx = 0
+            for rec in queryset:
+                name = rec['ingredient__name'].capitalize()
+                measurement_unit = rec['ingredient__measurement_unit']
+                measurement_unit = f'({measurement_unit})'
+                idx += 1
+                report.append(
+                    f'{idx} * {name} {measurement_unit} - {rec["amount_sum"]}')
         response.write('\n'.join(report))
         return response
 
