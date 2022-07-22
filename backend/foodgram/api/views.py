@@ -49,7 +49,7 @@ class SubscribeViewSet(viewsets.ReadOnlyModelViewSet):
         return User.objects.filter(
             subscribe_author__subscriber_id=self.request.user.id).order_by(
                 'username')
-        
+
     def get_serializer_context(self):
         context = super(SubscribeViewSet, self).get_serializer_context()
         recipes_limit = self.request.query_params.get('recipes_limit')
