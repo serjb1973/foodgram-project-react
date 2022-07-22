@@ -88,7 +88,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         response['Content-Disposition'] = 'attachment; filename="shopping.txt"'
         report = []
         report.append('Список покупок')
-        if not self.context['request'].user.is_anonymous:
+        if request.user.username:
             report.append(
                 f'{datetime.datetime.now():%Y-%m-%d} {request.user.username}')
             report.append('# Наименование Ед.Измерения Количество')
