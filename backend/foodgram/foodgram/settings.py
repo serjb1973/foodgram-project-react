@@ -148,7 +148,7 @@ DJOSER = {
         'user_create': 'api.serializers.UserSerializer',
     },
     'PERMISSIONS': {
-        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'], }
+        'user': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'], }
 }
 
 # Internationalization
