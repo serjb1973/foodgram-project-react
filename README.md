@@ -1,4 +1,5 @@
 # api
+![foodgram_workflow.yml](https://github.com/serjb1973/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 ## API project for posting recipes, 
 ## subscribing and buying ingredients
 -Install Virtual Environment
