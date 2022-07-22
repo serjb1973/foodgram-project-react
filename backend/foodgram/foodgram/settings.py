@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '=*to2%99q5_wowr3&hr3ul)km6%6$z591l3k9)3t=ygw%5)21v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -147,6 +147,9 @@ DJOSER = {
         'current_user': 'api.serializers.UserSerializerRead',
         'user_create': 'api.serializers.UserSerializer',
     },
+    'PERMISSIONS': {
+        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        }
 }
 
 # Internationalization
