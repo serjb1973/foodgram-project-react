@@ -1,11 +1,12 @@
 # Foodgram
 ![foodgram_workflow.yml](https://github.com/serjb1973/foodgram-project-react/actions/workflows/main.yml/badge.svg)
-## project creation and processing of 
-## culinary recipes and free exchange of them
+## project creation and processing of culinary recipes and free exchange of them
 ##### _-Install and run services in docker-compose environment_
-```git clone ...
+```
+git clone ...
 cd foodgram-project-react/infra
-touch .env```
+touch .env
+```
 > For example: .env
 ```sh
 DB_ENGINE=django.db.backends.postgresql
@@ -34,12 +35,20 @@ http://<You address>/admin/
 http://<You address>
 ```
 > For example:
-login/pass=serjb73@yandex.ru/admin
+
+```login/pass=serjb73@yandex.ru/admin```
+
 http://51.250.99.180/admin/
-login/pass=tester1@tester1.ru/tester1
+
+
+```login/pass=tester1@tester1.ru/tester1```
+
 http://51.250.99.180/
 
 ## Authors
+
 idea - https://practicum.yandex.ru
+
 frondend - https://practicum.yandex.ru
+
 backend - _Sergey Birukov_
