@@ -43,12 +43,13 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class SubscribeViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SubscribeSerializerRead
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         return User.objects.filter(
             subscribe_author__subscriber_id=self.request.user.id).order_by(
                 'username')
-
+        
     def get_serializer_context(self):
         context = super(SubscribeViewSet, self).get_serializer_context()
         recipes_limit = self.request.query_params.get('recipes_limit')
@@ -185,16 +186,3 @@ def shopping_change(request, id):
             context={'request': request})
         return Response(serializer.data)
     return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-@api_view(['GET'])
-def subscribe_get(request):
-    try:
-        user = User.objects.get(username=request.user)
-    except Exception:
-        return Response(
-            {'detail': 'Пользователь не авторизован.'},
-            status=status.HTTP_401_UNAUTHORIZED)
-    users = User.objects.filter(subscribe_author__subscriber_id=user.id)
-    serializer = SubscribeSerializerRead(users)
-    return Response(serializer.data)
