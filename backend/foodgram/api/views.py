@@ -1,6 +1,6 @@
-import csv
 import datetime
 
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -77,34 +77,29 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, url_path='download_shopping_cart')
-    def shopping_list_txt(self, request):
-        # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(content_type='text/plan; charset=utf8')
+    def shopping_list(self, request):
+        # Create the HttpResponse object with the appropriate header.
+        response = HttpResponse(content_type='text/plain; charset=utf8')
         response['Content-Disposition'] = 'attachment; filename="shopping.txt"'
-        writer = csv.writer(response)
-        writer.writerow(['Список покупок'])
-        writer.writerow(
-            [f'{datetime.datetime.now():%Y-%m-%d} {request.user.username}'])
-        writer.writerow(['# Наименование Ед.Измерения Количество'])
+        report = []
+        report.append('Список покупок')
+        report.append(
+            f'{datetime.datetime.now():%Y-%m-%d} {request.user.username}')
+        report.append('# Наименование Ед.Измерения Количество')
         queryset = RecipeIngredient.objects.filter(
-            recipe__shopping_recipe__user=request.user.id).extra(
-                select={
-                    'sum_amount':
-                    'select sum(amount) from recipes_RecipeIngredient as '
-                        'rec_inner where rec_inner.ingredient_id='
-                        'recipes_RecipeIngredient.ingredient_id'},
-                    ).values(
+            recipe__shopping_recipe__user=request.user.id).values(
                  'ingredient__name',
-                 'ingredient__measurement_unit',
-                 'sum_amount').distinct().order_by('ingredient__name')
+                 'ingredient__measurement_unit').annotate(
+                    amount_sum=Sum('amount')).order_by('ingredient__name')
         idx = 0
         for rec in queryset:
             name = rec['ingredient__name'].capitalize()
             measurement_unit = rec['ingredient__measurement_unit']
             measurement_unit = f'({measurement_unit})'
             idx += 1
-            writer.writerow(
-                [f'{idx} * {name} {measurement_unit} - {rec["sum_amount"]}'])
+            report.append(
+                f'{idx} * {name} {measurement_unit} - {rec["amount_sum"]}')
+        response.write('\n'.join(report))
         return response
 
 
