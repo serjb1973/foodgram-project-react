@@ -46,15 +46,19 @@ class SubscribeViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        return User.objects.filter(
-            subscribe_author__subscriber_id=self.request.user.id).order_by(
-                'username')
+        if not self.request.user.is_anonymous:
+            return User.objects.filter(
+                subscribe_author__subscriber_id=self.request.user.id).order_by(
+                    'username')
+        else:
+            return User.objects.none()
 
     def get_serializer_context(self):
         context = super(SubscribeViewSet, self).get_serializer_context()
-        recipes_limit = self.request.query_params.get('recipes_limit')
-        if recipes_limit:
-            context.update({"recipes_limit": recipes_limit})
+        if not self.request.user.is_anonymous:
+            recipes_limit = self.request.query_params.get('recipes_limit')
+            if recipes_limit:
+                context.update({"recipes_limit": recipes_limit})
         return context
 
 
