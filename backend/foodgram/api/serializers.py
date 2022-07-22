@@ -76,8 +76,12 @@ class UserSerializerRead(serializers.ModelSerializer):
         ordering = ['id']
 
     def get_is_subscribed(self, obj):
-        return Subscribe.objects.filter(
-            subscriber=obj).exists()
+        if not self.context['request'].user.is_anonymous:
+            return Subscribe.objects.filter(
+                author=obj,
+                subscriber=self.context['request'].user).exists()
+        else:
+            return False
 
 
 class UserSerializer(serializers.ModelSerializer):
