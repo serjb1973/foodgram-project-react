@@ -304,6 +304,9 @@ class SubscribeSerializerRead(serializers.ModelSerializer):
         return Recipe.objects.filter(author=obj).count()
 
     def get_is_subscribed(self, obj):
-        return Subscribe.objects.filter(
-            author=obj,
-            subscriber=self.context['request'].user).exists()
+        if not self.context['request'].user.is_anonymous:
+            return Subscribe.objects.filter(
+                author=obj,
+                subscriber=self.context['request'].user).exists()
+        else:
+            return False
