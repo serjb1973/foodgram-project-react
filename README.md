@@ -17,10 +17,12 @@ DB_PORT=5432
 ```
 ```sudo docker-compose up -d --build```
 ##### _-Install requirements and load initial_
-```sudo docker-compose exec backend python manage.py migrate```
-```sudo docker-compose exec backend python manage.py collectstatic --no-input```
-```sudo docker-compose exec backend python manage.py load_all_data```
-```sudo docker-compose exec backend python manage.py createsuperuser```
+```
+sudo docker-compose exec backend python manage.py migrate
+sudo docker-compose exec backend python manage.py collectstatic --no-input
+sudo docker-compose exec backend python manage.py load_all_data
+sudo docker-compose exec backend python manage.py createsuperuser
+```
 ##### _-Admin connection for initial load dictionaries_
 #
 ```sh
@@ -35,7 +37,6 @@ http://<You address>
 ```sh
 login/pass=serjb73@yandex.ru/admin
 http://51.250.99.180/admin/
-
 login/pass=tester1@tester1.ru/tester1
 http://51.250.99.180/
 ```
