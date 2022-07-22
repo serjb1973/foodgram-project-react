@@ -1,4 +1,5 @@
 from django_filters import rest_framework as filters
+
 from recipes.models import Recipe, Tag
 
 BOOLEAN_CHOICES = (('0', 'False'), ('1', 'True'),)
@@ -26,10 +27,6 @@ class RecipeFilterSet(filters.FilterSet):
         to_field_name='slug',
         label='tags',
         queryset=Tag.objects.all())
-    is_test = filters.TypedChoiceFilter(
-        choices=BOOLEAN_CHOICES,
-        field_name='favorite_recipe',
-        method='filter_add')
 
     def filter_add(self, queryset, name, value):
         if not self.request.user.is_anonymous:
@@ -38,7 +35,8 @@ class RecipeFilterSet(filters.FilterSet):
                 return queryset.filter(**{f'{name}__user': user})
             else:
                 return queryset.exclude(**{f'{name}__user': user})
-        return queryset.none()
+        # return queryset.none()
+        return queryset
 
     class Meta:
         model = Recipe
