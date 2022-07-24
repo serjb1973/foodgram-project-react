@@ -123,7 +123,7 @@ def subscribe_change(request, author_id):
         subscribe = Subscribe.objects.filter(
             subscriber=request.user,
             author=author)
-        if subscribe:
+        if subscribe.exists():
             subscribe.delete()
         else:
             return Response(
@@ -139,23 +139,20 @@ def subscribe_change(request, author_id):
 
 @api_view(['POST', 'DELETE'])
 def favorite_change(request, id):
-    try:
-        user = User.objects.get(username=request.user)
-    except Exception:
-        return Response(
-            {'detail': 'Пользователь не авторизован.'},
-            status=status.HTTP_401_UNAUTHORIZED)
     recipe = get_object_or_404(Recipe, id=id)
     try:
         if request.method == 'POST':
-            Favorite.objects.create(recipe=recipe, user=user)
+            Favorite.objects.create(recipe=recipe, user=request.user)
     except Exception:
         return Response(
             {'detail': 'Ошибка добавления в избранное'},
             status=status.HTTP_400_BAD_REQUEST)
     if request.method == 'DELETE':
-        if Favorite.objects.filter(recipe=recipe, user=user).exists():
-            Favorite.objects.filter(recipe=recipe, user=user).delete()
+        favorite = Favorite.objects.filter(
+            recipe=recipe,
+            user=request.user)
+        if favorite.exists():
+            favorite.delete()
         else:
             return Response(
                 {'detail': 'Ошибка удаления из избранного'},

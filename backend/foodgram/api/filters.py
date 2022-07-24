@@ -35,7 +35,6 @@ class RecipeFilterSet(filters.FilterSet):
                 return queryset.filter(**{f'{name}__user': user})
             else:
                 return queryset.exclude(**{f'{name}__user': user})
-        # return queryset.none()
         return queryset
 
     class Meta:
